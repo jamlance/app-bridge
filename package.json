@@ -28,7 +28,8 @@
     "dev": "tsup src/index.ts --format esm,cjs --dts --watch",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "prepare": "tsup src/index.ts --format esm,cjs --dts --clean"
   },
   "keywords": [
     "inkress",
