@@ -65,6 +65,13 @@ export interface BootstrapConfig {
   theme: Theme;
   host_version: string;
   session: InkressSession;
+  /**
+   * Inkress API base — e.g. "https://api.inkress.com/api/v1". The
+   * dashboard and API are usually on different origins, so the host
+   * sends this explicitly. `session.exchange` defaults its
+   * tokenEndpoint to `${api_base_url}/hooks/oauth/token` when set.
+   */
+  api_base_url?: string;
 }
 
 export interface NotifyArgs {
@@ -141,6 +148,9 @@ export interface InkressApp {
   locale: string;
   theme: Theme;
   hostOrigin: string;
+  /** Inkress API base. Populated from inkress.config.api_base_url
+   *  when the host provides it; falls back to undefined otherwise. */
+  apiBaseUrl?: string;
 
   /** Show a host-rendered toast. Fire-and-forget. */
   notify(args: NotifyArgs): void;
@@ -508,6 +518,7 @@ export async function createInkressApp(
     locale: config.locale,
     theme: config.theme,
     hostOrigin,
+    apiBaseUrl: config.api_base_url,
 
     notify({ kind = "info", message, duration_ms }) {
       if (!message) return;
@@ -573,8 +584,19 @@ export async function createInkressApp(
         );
       },
       async exchange(args) {
+        // Resolution order for the token endpoint:
+        //   1. explicit args.tokenEndpoint
+        //   2. ${config.api_base_url}/hooks/oauth/token (the host
+        //      knows the API origin; the JWT issuer is the
+        //      DASHBOARD origin, not the API)
+        //   3. ${iss}/api/v1/hooks/oauth/token — works for setups
+        //      where dashboard + API share an origin (rare in prod
+        //      but useful for local dev)
         const tokenEndpoint =
           args.tokenEndpoint ??
+          (config.api_base_url
+            ? `${stripTrailingSlash(config.api_base_url)}/hooks/oauth/token`
+            : null) ??
           (decoded.iss ? `${decoded.iss}/api/v1/hooks/oauth/token` : null);
         if (!tokenEndpoint) {
           throw new InkressBridgeError(
@@ -801,6 +823,10 @@ function base64UrlDecode(s: string): Uint8Array {
   const out = new Uint8Array(bin.length);
   for (let i = 0; i < bin.length; i += 1) out[i] = bin.charCodeAt(i);
   return out;
+}
+
+function stripTrailingSlash(s: string): string {
+  return s.endsWith("/") ? s.slice(0, -1) : s;
 }
 
 function genId(): string {
