@@ -33,7 +33,7 @@ inkress.navigate.embed("/orders/123");
 // Exchange the session JWT for a normal API access token (RFC 8693).
 // Use your backend for this — the example shows the shape only.
 const at = await inkress.session.exchange({
-  clientId: "inkc_…",
+  clientId: "inkid_…",
   clientSecret: "…",
 });
 ```
@@ -73,7 +73,7 @@ full protocol and surface model.
 
 ```ts
 const at = await inkress.session.exchange({
-  clientId: "inkc_…",
+  clientId: "inkid_…",
   clientSecret: "…",
 });
 

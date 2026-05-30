@@ -19,7 +19,7 @@
  *   console.log(`Hello, ${inkress.merchant.name}`);
  *   inkress.notify({ kind: 'success', message: 'Order created' });
  *   const at = await inkress.session.exchange({
- *     clientId: 'inkc_…',
+ *     clientId: 'inkid_…',
  *     clientSecret: '…',
  *     tokenEndpoint: 'https://api.inkress.com/api/v1/hooks/oauth/token',
  *   });
@@ -112,7 +112,7 @@ export interface ThemeChangedPayload {
 }
 
 export interface AccessTokenExchangeArgs {
-  /** Your OAuth client_id (the inkc_… string). */
+  /** Your OAuth client_id (the inkid_… string). */
   clientId: string;
   /** Your OAuth client_secret. Server-side use only; never ship it
    *  in browser bundles. If you call exchange() from the browser,
